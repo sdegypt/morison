@@ -1,9 +1,11 @@
 {
+  "id": "/?source=pwa",
   "name": "DIY - منصة الإبداع والتصميم",
   "short_name": "DIY",
   "description": "منصة إبداعية للتصميم والمشاريع والوظائف",
-  "start_url": "/",
+  "start_url": "/?source=pwa",
   "display": "standalone",
+  "display_override": ["standalone", "browser"],
   "background_color": "#ffffff",
   "theme_color": "#ff6b35",
   "orientation": "portrait-primary",
@@ -86,18 +88,11 @@
   ],
   "screenshots": [
     {
-      "src": "/screenshots/desktop-screenshot.png",
+      "src": "/screenshots/screen1.png",
       "sizes": "1280x720",
       "type": "image/png",
       "form_factor": "wide",
       "label": "DIY Desktop View"
-    },
-    {
-      "src": "/screenshots/mobile-screenshot.png",
-      "sizes": "375x812",
-      "type": "image/png",
-      "form_factor": "narrow",
-      "label": "DIY Mobile View"
     }
   ],
   "prefer_related_applications": false,

@@ -69,6 +69,7 @@ self.addEventListener('activate', event => {
 });
 
 // اعتراض الطلبات
+// اعتراض الطلبات مع دعم fallback لصفحة offline.html
 self.addEventListener('fetch', event => {
   const { request } = event;
   const url = new URL(request.url);
@@ -93,8 +94,18 @@ self.addEventListener('fetch', event => {
     return;
   }
 
-  // استراتيجية Stale While Revalidate للصفحات
-  event.respondWith(staleWhileRevalidate(request));
+  // استراتيجية Stale While Revalidate للصفحات مع fallback
+  event.respondWith(
+    staleWhileRevalidate(request).catch(async () => {
+      // إذا كان الطلب صفحة HTML، أرجع صفحة offline.html
+      if (request.destination === 'document' || request.headers.get('accept').includes('text/html')) {
+        const cache = await caches.open(STATIC_CACHE_NAME);
+        const offlineResponse = await cache.match('/offline.html');
+        return offlineResponse || new Response('Offline', { status: 503 });
+      }
+      return new Response('Offline', { status: 503 });
+    })
+  );
 });
 
 // استراتيجية Cache First
@@ -158,13 +169,17 @@ async function staleWhileRevalidate(request) {
 }
 
 // معالجة الرسائل من العميل
+// تحديث تلقائي للـ Service Worker عند توفر إصدار جديد
 self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
-  
   if (event.data && event.data.type === 'GET_VERSION') {
     event.ports[0].postMessage({ version: CACHE_NAME });
+  }
+  if (event.data && event.data.type === 'UPDATE_SW') {
+    self.skipWaiting();
+    clients.claim();
   }
 });
 
